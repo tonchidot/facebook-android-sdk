@@ -34,12 +34,17 @@ import android.support.v4.content.LocalBroadcastManager;
  */
 public class UiLifecycleHelper {
 
+    public interface SessionFactory {
+        public Session create();
+    }
+
     private final static String ACTIVITY_NULL_MESSAGE = "activity cannot be null";
 
     private final Activity activity;
     private final Session.StatusCallback callback;
     private final BroadcastReceiver receiver;
     private final LocalBroadcastManager broadcastManager;
+    private final SessionFactory sessionFactory;
 
     /**
      * Creates a new UiLifecycleHelper.
@@ -56,6 +61,26 @@ public class UiLifecycleHelper {
         this.callback = callback;
         this.receiver = new ActiveSessionBroadcastReceiver();
         this.broadcastManager = LocalBroadcastManager.getInstance(activity);
+        this.sessionFactory = null;
+    }
+
+    /**
+     * Creates a new UiLifecycleHelper.
+     *
+     * @param activity the Activity associated with the helper. If calling from a Fragment,
+     *                 use {@link android.support.v4.app.Fragment#getActivity()}
+     * @param callback the callback for Session status changes, can be null
+     * @param factory  the factory object to create new session instance.
+     */
+    public UiLifecycleHelper(Activity activity, Session.StatusCallback callback, SessionFactory factory) {
+        if (activity == null) {
+            throw new IllegalArgumentException(ACTIVITY_NULL_MESSAGE);
+        }
+        this.activity = activity;
+        this.callback = callback;
+        this.receiver = new ActiveSessionBroadcastReceiver();
+        this.broadcastManager = LocalBroadcastManager.getInstance(activity);
+        this.sessionFactory = factory;
     }
 
     /**
@@ -70,7 +95,10 @@ public class UiLifecycleHelper {
                 session = Session.restoreSession(activity, null, callback, savedInstanceState);
             }
             if (session == null) {
-                session = new Session(activity);
+                if (this.sessionFactory != null)
+                    session = this.sessionFactory.create();
+                else
+                    session = new Session(activity);
             }
             Session.setActiveSession(session);
         }
