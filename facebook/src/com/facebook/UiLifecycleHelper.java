@@ -206,8 +206,8 @@ public class UiLifecycleHelper {
         Session.saveSession(Session.getActiveSession(), outState);
         if (pendingFacebookDialogCallId != null) {
             outState.putString(DIALOG_CALL_ID_SAVE_KEY, pendingFacebookDialogCallId.toString());
+            pendingFacebookDialogCallStore.saveInstanceState(outState);
         }
-        pendingFacebookDialogCallStore.saveInstanceState(outState);
     }
 
     /**
