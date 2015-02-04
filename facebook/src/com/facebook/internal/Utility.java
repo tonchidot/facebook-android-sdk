@@ -69,8 +69,6 @@ public final class Utility {
     private static Map<String, FetchedAppSettings> fetchedAppSettings =
             new ConcurrentHashMap<String, FetchedAppSettings>();
 
-    private static String overridedApplicationId;
-
     public static class FetchedAppSettings {
         private boolean supportsAttribution;
         private boolean supportsImplicitLogging;
@@ -196,9 +194,6 @@ public final class Utility {
 
     public static String getMetadataApplicationId(Context context) {
         Validate.notNull(context, "context");
-
-        if (overridedApplicationId != null)
-            return overridedApplicationId;
 
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(
@@ -467,9 +462,5 @@ public final class Utility {
         } catch (InvocationTargetException ex) {
             return null;
         }
-    }
-
-    public static void setApplicationId(String applicationId) {
-        overridedApplicationId = applicationId;
     }
 }
